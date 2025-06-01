@@ -1,0 +1,34 @@
+services:
+  db:
+    container_name: db
+    image: postgres
+    environment: 
+      POSTGRES_USER: play2
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: easy_attendance
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data 
+    networks:
+      - dev_network
+  app:
+    build: .
+    container_name: app
+    ports: 
+      - "3001:3001"
+    depends_on:
+      - db
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgresql://play2:123456@db:5432/easy_attendance?schema=public
+    networks:
+      - dev_network
+
+networks:
+  dev_network:
+
+
+      
+volumes:
+  db-data:

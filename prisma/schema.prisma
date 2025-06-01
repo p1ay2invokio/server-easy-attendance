@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Employee{
+  id Int @unique @id @default(autoincrement())
+  phoneNumber String
+  name String
+  store_id Int
+  // latitude Decimal?
+  // longitude Decimal?
+  // timestamp DateTime
+
+  store Store @relation(fields: [store_id], references: [id]) //many to 1 พนักงานแต่ละคนมีร้านได้ 1 ร้าน
+  
+  attendances Attendance[] //1-to-many
+}
+
+model Store{
+  id Int @unique @id @default(autoincrement())
+  store_name String
+  
+  employee Employee[] // 1 to many ร้าน 1 ร้าน มี พนักงานได้หลายคน
+}
+
+model Attendance{
+  id Int @unique @id @default(autoincrement())
+  eid Int //foreign key
+  work_timestamp String // date work
+  in_timestamp Int
+  out_timestamp Int
+
+  employee Employee @relation(fields: [eid], references: [id])
+}
