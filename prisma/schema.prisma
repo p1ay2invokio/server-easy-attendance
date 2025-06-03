@@ -31,6 +31,9 @@ model Employee{
 model Store{
   id Int @unique @id @default(autoincrement())
   store_name String
+  lat Decimal?
+  lng Decimal?
+  radius Int
   
   employee Employee[] // 1 to many ร้าน 1 ร้าน มี พนักงานได้หลายคน
 }
