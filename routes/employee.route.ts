@@ -8,31 +8,39 @@ app.get("/today_data/:id", async (req: Request, res: Response) => {
     const { id } = req.params
 
     if (!id) {
-        res.status(401).send({ status: false, message: "id is missing" })
+        res.status(401).send({ status: 401, message: "id is missing" })
     }
 
-    let today = dayjs().locale('th').format("DD-MM-YYYY")
+    let userData = await prisma.employee.findFirst({where: {
+        id: Number(id)
+    }})
 
-    let employee = await prisma.attendance.findFirst({
-        select: {
-            id: true,
-            eid: true,
-            in_timestamp: true,
-            out_timestamp: true,
-            work_timestamp: true,
-            employee: true
-        }, where: {
-            eid: Number(id),
-            work_timestamp: today
+    if(userData){
+        let today = dayjs().locale('th').format("DD-MM-YYYY")
+
+        let employee = await prisma.attendance.findFirst({
+            select: {
+                id: true,
+                eid: true,
+                in_timestamp: true,
+                out_timestamp: true,
+                work_timestamp: true,
+                employee: true
+            }, where: {
+                eid: Number(id),
+                work_timestamp: today
+            }
+        })
+    
+        if (employee) {
+            res.status(200).send({ status: 200, data: employee })
+        } else {
+            res.status(200).send([])
         }
-    })
-
-    if (employee) {
-        res.status(200).send({ status: true, data: employee })
-    } else {
-        res.status(200).send([])
+    
+    }else{
+        res.status(401).send({status: 401, message: "ไม่มี User นี้อยู่ในระบบ"})
     }
-
 })
 
 
