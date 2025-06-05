@@ -19,6 +19,7 @@ model Employee{
   phoneNumber String
   name String
   store_id Int
+  rate Float?
   // latitude Decimal?
   // longitude Decimal?
   // timestamp DateTime

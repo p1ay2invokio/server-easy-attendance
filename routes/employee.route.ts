@@ -20,6 +20,7 @@ app.get("/today_data/:id", async (req: Request, res: Response) => {
             in_timestamp: true,
             out_timestamp: true,
             work_timestamp: true,
+            employee: true
         }, where: {
             eid: Number(id),
             work_timestamp: today

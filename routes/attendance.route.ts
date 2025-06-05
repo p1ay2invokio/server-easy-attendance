@@ -206,9 +206,11 @@ app.get("/history/:id", async (req: Request, res: Response) => {
             eid: Number(id),
             out_timestamp: {
                 not: 0
-            }
+            },
         }, orderBy: {
             id: "desc"
+        }, include: {
+            employee: true
         }
     })
 
