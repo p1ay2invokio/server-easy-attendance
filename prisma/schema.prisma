@@ -20,9 +20,9 @@ model Employee{
   name String
   store_id Int
   rate Float?
-  // latitude Decimal?
-  // longitude Decimal?
-  // timestamp DateTime
+  role Int?
+  cash Float?
+  department String?
 
   store Store @relation(fields: [store_id], references: [id]) //many to 1 พนักงานแต่ละคนมีร้านได้ 1 ร้าน
   
@@ -45,6 +45,7 @@ model Attendance{
   work_timestamp String // date work
   in_timestamp Int
   out_timestamp Int
+  revenue Float? @default(0.00)
 
   employee Employee @relation(fields: [eid], references: [id])
 }

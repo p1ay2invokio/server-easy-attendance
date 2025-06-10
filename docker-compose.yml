@@ -20,6 +20,7 @@ services:
     depends_on:
       - db
     environment:
+      TZ: Asia/Bangkok
       PORT: 3001
       DATABASE_URL: postgresql://play2:123456@db:5432/easy_attendance?schema=public
     networks:
