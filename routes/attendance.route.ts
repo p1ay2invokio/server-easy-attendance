@@ -3,9 +3,12 @@ import prisma from "../appDataSource";
 import dayjs from "dayjs";
 import LatLon from 'geodesy/latlon-spherical'
 import 'dayjs/locale/th'
+import { PlayDisNotify } from "playdis-notify";
 
 
 const app = Router()
+
+const notify = new PlayDisNotify('https://discord.com/api/webhooks/1382276400723136603/yxCZz1D1EUgnLZamjMusT4M6Py-s5e2H4U4vnKjgan4dmCVXCYm6NV8m1ZBunOHB-iWe')
 
 // Har
 // const calculateDistance=(destination_lat: number, destination_long: number, me_lat: number, me_long: number)=>{
@@ -92,7 +95,7 @@ app.post("/attend", async (req: Request, res: Response) => {
 
         // console.log(near_area)
 
-
+        // near_area && near_area.length > 0
         if (near_area && near_area.length > 0) {
             // Get today_attendance by date
             const today_attendance = await prisma.attendance.findFirst({
@@ -112,6 +115,8 @@ app.post("/attend", async (req: Request, res: Response) => {
                         id: aid
                     }
                 })
+
+                notify.push(`\`\`\`\n${userId.name} เข้างานแล้ว 🟢\n${dayjs().locale('th').format("DD/MMMM/YYYY HH:mm:ss")}\n\`\`\``)
 
                 res.status(200).send({ status: true, message: "เข้างานสำเร็จ!" })
             }
@@ -206,6 +211,8 @@ app.post("/out", async (req: Request, res: Response) => {
                             id: id
                         }
                     })
+
+                    notify.push(`\`\`\`\n${employee.name} ออกงานแล้ว 🔴\n${dayjs().locale('th').format("DD/MMMM/YYYY HH:mm:ss")}\n\`\`\``)
 
                     res.status(200).send({ status: true, message: "ออกจากงานสำเร็จ!" })
                 }

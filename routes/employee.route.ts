@@ -182,5 +182,21 @@ app.patch("/employee/revenue", async (req: Request, res: Response) => {
     }
 })
 
+app.patch("/employee/paid/salary", async(req: Request, res: Response)=>{
+
+    let {eid} = req.body
+
+    await prisma.employee.update({
+        data:{
+            cash: 0
+        },
+        where:{
+            id: eid
+        }
+    })
+
+    res.status(200).send({status: res.statusCode, message: "จ่ายเงินเดือนสำเร็จ!"})
+})
+
 
 export default app
