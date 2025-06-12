@@ -116,7 +116,7 @@ app.post("/attend", async (req: Request, res: Response) => {
                     }
                 })
 
-                notify.push(`\`\`\`\n${userId.name} เข้างานแล้ว 🟢\n${dayjs().locale('th').format("DD/MMMM/YYYY HH:mm:ss")}\n\`\`\``)
+                notify.push(`\`\`\`\n${userId.name} (${userId.department}) เข้างานแล้ว 🟢\n${dayjs().locale('th').format("DD/MMMM/YYYY HH:mm:ss")}\n\`\`\``)
 
                 res.status(200).send({ status: true, message: "เข้างานสำเร็จ!" })
             }
@@ -212,7 +212,7 @@ app.post("/out", async (req: Request, res: Response) => {
                         }
                     })
 
-                    notify.push(`\`\`\`\n${employee.name} ออกงานแล้ว 🔴\n${dayjs().locale('th').format("DD/MMMM/YYYY HH:mm:ss")}\n\`\`\``)
+                    notify.push(`\`\`\`\n${employee.name} (${employee.department}) ออกงานแล้ว 🔴\n${dayjs().locale('th').format("DD/MMMM/YYYY HH:mm:ss")}\n\`\`\``)
 
                     res.status(200).send({ status: true, message: "ออกจากงานสำเร็จ!" })
                 }
