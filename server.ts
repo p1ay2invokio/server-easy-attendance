@@ -4,6 +4,8 @@ import AttendanceRoute from './routes/attendance.route'
 import EmployeeRoute from './routes/employee.route'
 import dayjs from 'dayjs'
 import prisma from './appDataSource'
+import cron from 'node-cron'
+
 
 
 const app = express()
@@ -32,22 +34,15 @@ const addDateAllUser = async () => {
 
         console.log(item.id, "Insert Data")
     })
-
-    RestartAgain()
-
 }
 
-const RestartAgain = () => {
-    let now = dayjs()
-    let tomorrow_minight = dayjs().add(1, 'day').startOf('day')
-    let diff = tomorrow_minight.diff(now)
+const task = cron.schedule('0 0 * * *', () => {
 
-    setTimeout(() => {
-        addDateAllUser()
-    }, diff)
-}
-
-RestartAgain()
+  addDateAllUser();
+  
+}, {
+  timezone: "Asia/Bangkok"
+});
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`)
