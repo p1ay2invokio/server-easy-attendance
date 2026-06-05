@@ -8,7 +8,7 @@ import { PlayDisNotify } from "playdis-notify";
 
 const app = Router()
 
-const notify = new PlayDisNotify('https://discord.com/api/webhooks/1386754749734457354/ZY8gX0Ho5cvypixwcpV1U8BYfvoArBkC3zl4PhJXPyCgtLr1jAfhGbF6QidcDu1U6Glh')
+const notify = new PlayDisNotify('https://discord.com/api/webhooks/1512446827943690250/ZufjBfsgm89JE7v58zYJZCPzxy1Af_vfCQImRl2ffJeLJNe5BUY5jBwmOhYBKGL7Q1aP')
 
 // Har
 // const calculateDistance=(destination_lat: number, destination_long: number, me_lat: number, me_long: number)=>{
