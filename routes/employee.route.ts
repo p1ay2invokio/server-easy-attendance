@@ -198,5 +198,142 @@ app.patch("/employee/paid/salary", async(req: Request, res: Response)=>{
     res.status(200).send({status: res.statusCode, message: "จ่ายเงินเดือนสำเร็จ!"})
 })
 
+app.post("/withdraw", async (req: Request, res: Response) => {
+    let { eid, amount } = req.body
+
+    if (!eid || !amount || amount <= 0) {
+        res.status(400).send({ status: false, message: "ข้อมูลไม่ครบถ้วนหรือจำนวนเงินไม่ถูกต้อง" });
+        return;
+    }
+
+    try {
+        let employee = await prisma.employee.findUnique({
+            where: { id: Number(eid) }
+        })
+
+        if (!employee) {
+            res.status(404).send({ status: false, message: "ไม่พบข้อมูลพนักงาน" });
+            return;
+        }
+
+        if ((employee.cash || 0) < amount) {
+            res.status(400).send({ status: false, message: "ยอดเงินคงเหลือไม่เพียงพอสำหรับการเบิก!" });
+            return;
+        }
+
+        let request = await prisma.withdrawalRequest.create({
+            data: {
+                eid: Number(eid),
+                amount: Number(amount),
+                status: "PENDING"
+            }
+        })
+
+        res.status(200).send({ status: true, message: "ส่งคำร้องขอเบิกเงินสำเร็จ!", data: request })
+    } catch (err: any) {
+        res.status(500).send({ status: false, message: err.message })
+    }
+})
+
+app.get("/employee/withdrawals/:eid", async (req: Request, res: Response) => {
+    let { eid } = req.params
+
+    try {
+        let requests = await prisma.withdrawalRequest.findMany({
+            where: {
+                eid: Number(eid)
+            },
+            orderBy: {
+                id: "desc"
+            }
+        })
+
+        res.status(200).send(requests)
+    } catch (err: any) {
+        res.status(500).send({ status: false, message: err.message })
+    }
+})
+
+app.post("/admin/withdraw/approve", async (req: Request, res: Response) => {
+    let { id } = req.body
+
+    if (!id) {
+        res.status(400).send({ status: false, message: "id is missing" });
+        return;
+    }
+
+    try {
+        let request = await prisma.withdrawalRequest.findUnique({
+            where: { id: Number(id) },
+            include: { employee: true }
+        })
+
+        if (!request) {
+            res.status(404).send({ status: false, message: "ไม่พบรายการร้องขอ" });
+            return;
+        }
+
+        if (request.status !== "PENDING") {
+            res.status(400).send({ status: false, message: "รายการนี้ได้รับการประมวลผลไปแล้ว" });
+            return;
+        }
+
+        if ((request.employee.cash || 0) < request.amount) {
+            res.status(400).send({ status: false, message: "ยอดเงินคงเหลือของพนักงานไม่เพียงพอสำหรับการเบิก!" });
+            return;
+        }
+
+        // Transaction to update request status and deduct employee cash
+        await prisma.$transaction([
+            prisma.withdrawalRequest.update({
+                where: { id: request.id },
+                data: { status: "APPROVED" }
+            }),
+            prisma.employee.update({
+                where: { id: request.eid },
+                data: { cash: { decrement: request.amount } }
+            })
+        ])
+
+        res.status(200).send({ status: true, message: "อนุมัติรายการเบิกเงินสำเร็จ!" })
+    } catch (err: any) {
+        res.status(500).send({ status: false, message: err.message })
+    }
+})
+
+app.post("/admin/withdraw/reject", async (req: Request, res: Response) => {
+    let { id } = req.body
+
+    if (!id) {
+        res.status(400).send({ status: false, message: "id is missing" });
+        return;
+    }
+
+    try {
+        let request = await prisma.withdrawalRequest.findUnique({
+            where: { id: Number(id) }
+        })
+
+        if (!request) {
+            res.status(404).send({ status: false, message: "ไม่พบรายการร้องขอ" });
+            return;
+        }
+
+        if (request.status !== "PENDING") {
+            res.status(400).send({ status: false, message: "รายการนี้ได้รับการประมวลผลไปแล้ว" });
+            return;
+        }
+
+        await prisma.withdrawalRequest.update({
+            where: { id: request.id },
+            data: { status: "REJECTED" }
+        })
+
+        res.status(200).send({ status: true, message: "ปฏิเสธรายการเบิกเงินแล้ว" })
+    } catch (err: any) {
+        res.status(500).send({ status: false, message: err.message })
+    }
+})
+
 
 export default app
